@@ -1,4 +1,5 @@
 const path = require('path')
+const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
@@ -15,7 +16,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /.(ts|tsx)$/,
+        test: /\.(ts|tsx)$/,
         use: {
           loader: 'babel-loader',
           options: {
@@ -26,7 +27,24 @@ module.exports = {
             ]
           }
         }
-      }
+      },
+      {
+        test: /\.(sass|scss)$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          // postcss放在sass前和后都无关，最好放在sass-loader后（个人认为）
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: ['autoprefixer']
+              }
+            }
+          },
+          'sass-loader',
+        ],
+      },
     ]
   },
   // 在引入模块时不带文件后缀时，会来该配置数组里面依次添加后缀查找文件，
@@ -42,6 +60,10 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, '../public/index.html'), // 模板取定义root节点的模板
       inject: true, // 自动注入静态资源
+    }),
+    // 将环境变量注入业务中
+    new webpack.DefinePlugin({
+      'process.env.BASE_ENV': JSON.stringify(process.env.BASE_ENV)
     })
   ]
 
