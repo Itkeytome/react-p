@@ -17,33 +17,29 @@ module.exports = {
     rules: [
       {
         test: /\.(ts|tsx)$/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            // 预设执行从右往左
-            presets: [
-              '@babel/preset-react',
-              '@babel/preset-typescript'
-            ]
-          }
-        }
+        use: 'babel-loader', // 读取babel.config.js中的配置
       },
       {
         test: /\.(sass|scss)$/,
         use: [
           'style-loader',
           'css-loader',
-          // postcss放在sass前和后都无关，最好放在sass-loader后（个人认为）
-          {
-            loader: 'postcss-loader',
-            options: {
-              postcssOptions: {
-                plugins: ['autoprefixer']
-              }
-            }
-          },
+          'postcss-loader', // postcss放在sass前和后都无关，最好放在sass-loader后（个人认为）
           'sass-loader',
         ],
+      },
+      {
+        test: /.(png|jpg|jpeg|gif|svg)$/, // 匹配图片文件
+        // webpack4使用file-loader和url-loader来处理的,但webpack5不使用这两个loader了,而是采用自带的asset-module来处理
+        type: "asset", // type选择asset
+        parser: {
+          dataUrlCondition: {
+            maxSize: 10 * 1024, // 小于10kb转base64位
+          }
+        },
+        generator: {
+          filename: 'static/images/[name][ext]', // 文件输出目录和命名
+        },
       },
     ]
   },
